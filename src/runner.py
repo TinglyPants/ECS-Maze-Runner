@@ -3,8 +3,8 @@
 
 """Module defining functions related to maze runners."""
 
-from direction import Direction
-from turn import Turn
+from src.direction import Direction
+from src.turn import Turn
 
 
 def create_runner(
