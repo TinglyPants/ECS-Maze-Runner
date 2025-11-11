@@ -12,6 +12,7 @@ def test_turn_left():
     assert Direction.SOUTH.turn_left() == Direction.EAST
     assert Direction.WEST.turn_left() == Direction.SOUTH
 
+
 def test_turn_right():
     assert Direction.NORTH.turn_right() == Direction.EAST
     assert Direction.EAST.turn_right() == Direction.SOUTH
