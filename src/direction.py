@@ -46,3 +46,27 @@ class Direction(Enum):
         order: list = [Direction.NORTH, Direction.WEST, Direction.SOUTH, Direction.EAST]
         index: int = order.index(Direction(self.value))
         return Direction(order[(index + 1) % 4])
+
+    def __int__(self) -> int:
+        """Return the integer representation of the `Direction`
+
+        The cardinal directions are assigned a 0 indexed integer, increasing clockwise starting from NORTH.
+        NORTH -> 0,
+        EAST -> 1,
+        SOUTH -> 2,
+        WEST -> 3.
+
+        Returns
+        -------
+        int
+            The integer representation of the `Direction`.
+        """
+        match self:
+            case Direction.NORTH:
+                return 0
+            case Direction.EAST:
+                return 1
+            case Direction.SOUTH:
+                return 2
+            case Direction.WEST:
+                return 3
