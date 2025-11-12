@@ -4,7 +4,6 @@
 """Module defining functions related to the maze."""
 
 from direction import Direction
-from turn import Turn
 
 def create_maze(width: int = 5, height: int = 5) -> list[list[list[bool]]]:
     """Return a 2D list of cells representing a generated maze.
@@ -88,6 +87,8 @@ def add_horizontal_wall(maze: list[list[list[bool]]], x_coordinate: int, horizon
         raise ValueError(f"x_coordinate must be less than width ({width}), got {x_coordinate}")
     if horizontal_line == 0 or horizontal_line == height:
         raise ValueError(f"cannot add a horizontal wall to the edge of the maze.")
+    if horizontal_line > height:
+        raise ValueError(f"horizontal_line must be less than height ({height}), got {horizontal_line}")
 
     # Horizontal wall affects adjacent cells at indices [horizontal_line] and [horizontal_line - 1].
     maze[x_coordinate][horizontal_line][int(Direction.SOUTH)] = True # Set south wall
@@ -129,6 +130,8 @@ def add_vertical_wall(maze: list[list[list[bool]]], y_coordinate: int, vertical_
         raise ValueError(f"y_coordinate must be less than height ({height}), got {y_coordinate}")
     if vertical_line == 0 or vertical_line == width:
         raise ValueError(f"cannot add a vertical wall to the edge of the maze.")
+    if vertical_line > width:
+        raise ValueError(f"vertical_line must be less than width ({width}), got {vertical_line}")
 
     # Vertical wall affects adjacent cells at indices [vertical_line] and [vertical_line - 1].
     maze[vertical_line][y_coordinate][int(Direction.WEST)] = True  # Set west wall
@@ -202,7 +205,7 @@ def get_walls(maze: list[list[list[bool]]], x_coordinate: int, y_coordinate: int
 
     cell = maze[x_coordinate][y_coordinate]
 
-    if not (isinstance(cell, list) and isinstance(cell[0], bool)):
+    if not (isinstance(cell, list) and all(isinstance(wall, bool) for wall in cell)):
         raise TypeError(f"maze cell must be list[bool]!")
 
     return cell[0], cell[1], cell[2], cell[3]
