@@ -131,8 +131,8 @@ def add_vertical_wall(maze: list[list[list[bool]]], y_coordinate: int, vertical_
         raise ValueError(f"cannot add a vertical wall to the edge of the maze.")
 
     # Vertical wall affects adjacent cells at indices [vertical_line] and [vertical_line - 1].
-    maze[y_coordinate][vertical_line][int(Direction.WEST)] = True  # Set west wall
-    maze[y_coordinate][vertical_line - 1][int(Direction.EAST)] = True  # Set east wall
+    maze[vertical_line][y_coordinate][int(Direction.WEST)] = True  # Set west wall
+    maze[vertical_line - 1][y_coordinate][int(Direction.EAST)] = True  # Set east wall
 
     return maze
 
