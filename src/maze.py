@@ -61,7 +61,31 @@ def add_vertical_wall(maze: list[list[list[bool]]], y_coordinate: int, vertical_
     pass
 
 def get_dimensions(maze: list[list[list[bool]]]) -> tuple[int, int]:
-    pass
+    """Return the dimensions of the maze.
+
+    Parameters
+    ----------
+    maze : list[list[list[bool]]]
+        The maze to get dimensions from.
+
+    Returns
+    -------
+    tuple[int, int]
+        The dimensions of the maze.
+        Returned as (width, height).
+    """
+    if not (isinstance(maze, list) and isinstance(maze[0], list)):
+        raise TypeError(f"maze must be list[list]!")
+
+    width = len(maze)
+    height = len(maze[0])
+
+    # Ensure maze is not jagged
+    for column in maze:
+        if len(column) != height:
+            raise ValueError(f"maze list[list] must not be jagged!")
+
+    return width, height
 
 def get_walls(maze: list[list[list[bool]]], x_coordinate: int, y_coordinate: int) -> tuple[bool, bool, bool, bool]:
     """Return the cell at a given position in the maze.
@@ -84,8 +108,6 @@ def get_walls(maze: list[list[list[bool]]], x_coordinate: int, y_coordinate: int
     tuple[bool, bool, bool, bool]
         The cell at a given position in the maze.
     """
-    if not (isinstance(maze, list) and isinstance(maze[0], list)):
-        raise TypeError(f"maze must be list[list]!")
     if not isinstance(x_coordinate, int):
         raise TypeError(f"x_coordinate must be int, got {type(x_coordinate).__name__}")
     if not isinstance(y_coordinate, int):
@@ -95,8 +117,7 @@ def get_walls(maze: list[list[list[bool]]], x_coordinate: int, y_coordinate: int
     if y_coordinate < 0:
         raise ValueError(f"y_coordinate must be greater than or equal to 0, got {y_coordinate}")
 
-    width = len(maze)
-    height = len(maze[0])
+    width, height = get_dimensions(maze)
 
     if x_coordinate >= width:
         raise ValueError(f"x_coordinate must be less than width ({width}), got {x_coordinate}")
