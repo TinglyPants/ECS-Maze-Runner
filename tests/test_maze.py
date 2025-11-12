@@ -5,7 +5,6 @@
 
 import pytest
 from maze import *
-from direction import Direction
 
 
 def test_create_maze_assignment():
