@@ -96,7 +96,45 @@ def add_horizontal_wall(maze: list[list[list[bool]]], x_coordinate: int, horizon
     return maze
 
 def add_vertical_wall(maze: list[list[list[bool]]], y_coordinate: int, vertical_line: int) -> list[list[list[bool]]]:
-    pass
+    """Return the maze with a vertical wall added.
+
+        Attempting to add a vertical wall to the edges of the maze will result in a ValueError.
+
+        Parameters
+        ----------
+        maze : list[list[list[bool]]]
+            The maze to add horizontal wall to.
+        y_coordinate : int
+            The y coordinate of the wall.
+        vertical_line : int
+            The vertical line position of the wall.
+
+        Returns
+        -------
+        list[list[list[bool]]]
+            The maze with a vertical wall added.
+        """
+    if not isinstance(y_coordinate, int):
+        raise TypeError(f"y_coordinate must be int, got {type(y_coordinate).__name__}")
+    if not isinstance(vertical_line, int):
+        raise TypeError(f"vertical_line must be int, got {type(vertical_line).__name__}")
+    if y_coordinate < 0:
+        raise ValueError(f"y_coordinate must be greater than or equal to 0, got {y_coordinate}")
+    if vertical_line < 0:
+        raise ValueError(f"vertical_line must be greater than or equal to 0, got {vertical_line}")
+
+    width, height = get_dimensions(maze)
+
+    if y_coordinate >= height:
+        raise ValueError(f"y_coordinate must be less than height ({height}), got {y_coordinate}")
+    if vertical_line == 0 or vertical_line == width:
+        raise ValueError(f"cannot add a vertical wall to the edge of the maze.")
+
+    # Vertical wall affects adjacent cells at indices [vertical_line] and [vertical_line - 1].
+    maze[y_coordinate][vertical_line][int(Direction.WEST)] = True  # Set west wall
+    maze[y_coordinate][vertical_line - 1][int(Direction.EAST)] = True  # Set east wall
+
+    return maze
 
 def get_dimensions(maze: list[list[list[bool]]]) -> tuple[int, int]:
     """Return the dimensions of the maze.
