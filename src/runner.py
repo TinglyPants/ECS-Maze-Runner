@@ -166,6 +166,36 @@ def forward(runner: dict) -> dict:
     return {**runner, "x": x, "y": y}
 
 
+def backward(runner: dict) -> dict:
+    """Move the runner backward one cell, then return the moved runner.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+
+    Returns
+    -------
+    dict
+        A dictionary object representing the moved runner.
+    """
+    x = get_x(runner)
+    y = get_y(runner)
+    orientation = get_orientation(runner)
+
+    match orientation:
+        case Direction.NORTH:
+            y -= 1
+        case Direction.EAST:
+            x -= 1
+        case Direction.SOUTH:
+            y += 1
+        case Direction.WEST:
+            x += 1
+
+    return {**runner, "x": x, "y": y}
+
+
 def sense_walls(runner: dict, maze: list[list[list[bool]]]) -> tuple[bool, bool, bool]:
     """Return a tuple indicating whether there are walls to the left, straight ahead, or to the right of the runner.
 
