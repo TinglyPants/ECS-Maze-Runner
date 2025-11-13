@@ -5,6 +5,7 @@
 
 from direction import Direction
 from turn import Turn
+from wall import Wall
 from maze import get_walls
 
 def create_runner(
@@ -200,6 +201,7 @@ def sense_walls(runner: dict, maze: list[list[list[bool]]]) -> tuple[bool, bool,
     """Return a tuple indicating whether there are walls to the left, straight ahead, or to the right of the runner.
 
     The returned tuple has the order: left, straight, right.
+    Indexing the tuple should be done by casting a `Wall` enum to an int.
     A value of `True` indicates that a wall is present.
 
     Parameters
@@ -271,18 +273,22 @@ def move(runner: dict, maze: list[list[list[bool]]]) -> tuple[dict, str]:
     walls = sense_walls(runner, maze)
     sequence = ""
 
-    if not walls[0]:
+    if not walls[int(Wall.LEFT)]:
+        # Go left
         sequence += "LF"
         runner = turn(runner, Turn.LEFT)
         runner = forward(runner)
-    elif not walls[1]:
+    elif not walls[int(Wall.FORWARD)]:
+        # Go forward
         sequence += "F"
         runner = forward(runner)
-    elif not walls[2]:
+    elif not walls[int(Wall.RIGHT)]:
+        # Go right
         sequence += "RF"
         runner = turn(runner, Turn.RIGHT)
         runner = forward(runner)
     else:
+        # Go back
         sequence += "B"
         runner = backward(runner)
 
