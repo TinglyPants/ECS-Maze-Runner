@@ -194,3 +194,28 @@ def sense_walls(runner: dict, maze: list[list[list[bool]]]) -> tuple[bool, bool,
     right_direction = orientation.turn_right()
 
     return cell[int(left_direction)], cell[int(orientation)], cell[int(right_direction)]
+
+
+def go_straight(runner: dict, maze: list[list[list[bool]]]) -> dict:
+    """Advance the runner straight by one position, then return the moved runner.
+
+    If the runner attempts to walk through a wall, a ValueError is raised.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+    maze : list[list[list[bool]]]
+        The maze the runner is in.
+
+    Returns
+    -------
+    dict
+        A dictionary object representing the moved runner.
+    """
+    if not sense_walls(runner, maze)[1]: # Wall directly ahead is empty
+        return forward(runner)
+    else:
+        raise ValueError("runner cannot walk through a wall")
+
+
