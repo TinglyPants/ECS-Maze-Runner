@@ -249,3 +249,41 @@ def go_straight(runner: dict, maze: list[list[list[bool]]]) -> dict:
         raise ValueError("runner cannot walk through a wall")
 
 
+def move(runner: dict, maze: list[list[list[bool]]]) -> tuple[dict, str]:
+    """Move the runner by one cell, then return the moved runner and the sequence of actions taken to get there.
+
+    The runner will use a simple left-hug algorithm to move the runner. Each call of the function will advance the runner by one cell.
+    The sequence of actions returned uses "L" and "R" to indicate left and right turns respectively.
+    The sequence of actions returned uses "F" and "B" to indicate forward and backward movements respectively.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+    maze : list[list[list[bool]]]
+        The maze the runner is in.
+
+    Returns
+    -------
+    tuple[dict, str]
+        A tuple containing the moved runner and the sequence of actions taken to get there.
+    """
+    walls = sense_walls(runner, maze)
+    sequence = ""
+
+    if not walls[0]:
+        sequence += "LF"
+        runner = turn(runner, Turn.LEFT)
+        runner = forward(runner)
+    elif not walls[1]:
+        sequence += "F"
+        runner = forward(runner)
+    elif not walls[2]:
+        sequence += "RF"
+        runner = turn(runner, Turn.RIGHT)
+        runner = forward(runner)
+    else:
+        sequence += "B"
+        runner = backward(runner)
+
+    return runner, sequence
