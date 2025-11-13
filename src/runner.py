@@ -5,7 +5,7 @@
 
 from direction import Direction
 from turn import Turn
-
+from maze import get_walls
 
 def create_runner(
     x: int = 0, y: int = 0, orientation: Direction = Direction.NORTH
@@ -164,3 +164,33 @@ def forward(runner: dict) -> dict:
             x -= 1
 
     return {**runner, "x": x, "y": y}
+
+
+def sense_walls(runner: dict, maze: list[list[list[bool]]]) -> tuple[bool, bool, bool]:
+    """Return a tuple indicating whether there are walls to the left, straight ahead, or to the right of the runner.
+
+    The returned tuple has the order: left, straight, right.
+    A value of `True` indicates that a wall is present.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+    maze : list[list[list[bool]]]
+        The maze the runner is in.
+
+    Returns
+    -------
+    tuple[bool, bool, bool]
+        The tuple indicating whether there are walls to the left, straight ahead, or to the right of the runner.
+    """
+    x = get_x(runner)
+    y = get_y(runner)
+    cell = get_walls(maze, x, y)
+
+    # Get left and right of runner
+    orientation = get_orientation(runner)
+    left_direction = orientation.turn_left()
+    right_direction = orientation.turn_right()
+
+    return cell[int(left_direction)], cell[int(orientation)], cell[int(right_direction)]
