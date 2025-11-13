@@ -6,7 +6,7 @@
 from direction import Direction
 from turn import Turn
 from wall import Wall
-from maze import get_walls
+from maze import get_walls, get_dimensions
 
 def create_runner(
     x: int = 0, y: int = 0, orientation: Direction = Direction.NORTH
@@ -293,3 +293,68 @@ def move(runner: dict, maze: list[list[list[bool]]]) -> tuple[dict, str]:
         runner = backward(runner)
 
     return runner, sequence
+
+
+def in_goal(runner: dict, goal_x: int, goal_y: int) -> bool:
+    """Return whether the runner is in the goal position.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+    goal_x : int
+        The x position of the goal.
+    goal_y : int
+        The y position of the goal.
+
+    Returns
+    -------
+    bool
+        Whether the runner is in the goal position.
+    """
+    x = get_x(runner)
+    y = get_y(runner)
+
+    return (x == goal_x) and (y == goal_y)
+
+def explore(runner: dict, maze: list[list[list[bool]]], goal: tuple[int, int] | None = None) -> list[tuple[int, int, str]]:
+    """Advance the runner through the maze until the goal is reached. Return the sequence of positions and actions taken to get there.
+
+    Parameters
+    ----------
+    runner : dict
+        The dictionary object representing a maze runner.
+    maze : list[list[list[bool]]]
+        The maze the runner is in.
+    goal : tuple[int, int], optional
+        The position of the goal. If None, the goal will be the top right of the maze. Default is None.
+
+    Returns
+    -------
+    list[tuple[int, int, str]]
+        The sequence of positions and actions taken to get to the goal.
+    """
+    # Get goal position
+    goal_x, goal_y = None, None
+    width, height = get_dimensions(maze)
+    if goal is None:
+        goal_x = width - 1
+        goal_y = height - 1
+    else:
+        if not isinstance(goal, tuple):
+            raise TypeError(f"goal must be a tuple, got {type(goal).__name__}")
+        if not (isinstance(goal[0], int) and isinstance(goal[1], int)):
+            raise TypeError(f"goal must be be tuple (int, int), got ({type(goal[0]).__name__}, {type(goal[1]).__name__})")
+
+        goal_x, goal_y = goal
+
+        if goal_x >= width or goal_y >= height or goal_x < 0 or goal_y < 0:
+            raise ValueError(f"goal must be inside the maze, got ({goal_x}, {goal_y})")
+
+    # Move runner until runner is at the goal
+    runner_action_sequence = []
+    while not in_goal(runner, goal_x, goal_y):
+        runner, action = move(runner, maze)
+        runner_action_sequence.append((get_x(runner), get_y(runner), action))
+
+    return runner_action_sequence
