@@ -6,7 +6,7 @@
 from direction import Direction
 from turn import Turn
 from wall import Wall
-from maze import get_walls, get_dimensions
+from maze import *
 
 def create_runner(
     x: int = 0, y: int = 0, orientation: Direction = Direction.NORTH
@@ -168,7 +168,7 @@ def forward(runner: dict) -> dict:
 
 
 def backward(runner: dict) -> dict:
-    """Move the runner backward one cell, then return the moved runner.
+    """Move the runner backward one cell, flipping direction, then return the moved runner.
 
     Parameters
     ----------
@@ -183,6 +183,7 @@ def backward(runner: dict) -> dict:
     x = get_x(runner)
     y = get_y(runner)
     orientation = get_orientation(runner)
+    new_orientation = orientation.turn_left().turn_left()
 
     match orientation:
         case Direction.NORTH:
@@ -194,7 +195,7 @@ def backward(runner: dict) -> dict:
         case Direction.WEST:
             x += 1
 
-    return {**runner, "x": x, "y": y}
+    return {**runner, "x": x, "y": y, "orientation": new_orientation}
 
 
 def sense_walls(runner: dict, maze: list[list[list[bool]]]) -> tuple[bool, bool, bool]:
