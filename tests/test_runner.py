@@ -126,6 +126,7 @@ def test_forward():
     assert forward(runner_south) == {"x": 0, "y": -1, "orientation": Direction.SOUTH}
     assert forward(runner_west) == {"x": -1, "y": 0, "orientation": Direction.WEST}
 
+
 def test_backward():
     """Unit test backward."""
     runner_north = create_runner(0, 0, Direction.NORTH)
@@ -141,7 +142,7 @@ def test_backward():
 
 def test_sense_walls():
     """Unit test sense_walls."""
-    maze = create_maze(3,3)
+    maze = create_maze(3, 3)
     runner = create_runner(1, 1, Direction.NORTH)
 
     maze = add_horizontal_wall(maze, 1, 2)
@@ -157,7 +158,7 @@ def test_sense_walls():
 
 def test_go_straight():
     """Unit test go_straight."""
-    maze = create_maze(3,3)
+    maze = create_maze(3, 3)
     runner = create_runner(1, 1, Direction.NORTH)
 
     maze = add_horizontal_wall(maze, 1, 2)
@@ -171,10 +172,10 @@ def test_go_straight():
 
 def test_explore():
     """Unit test explore."""
-    maze = create_maze(3,3)
+    maze = create_maze(3, 3)
     runner = create_runner(0, 0, Direction.NORTH)
 
-    assert explore(runner, maze, (0,0)) == []
-    assert explore(runner, maze, (0,1)) == [(0,1,"F")]
+    assert explore(runner, maze, (0, 0)) == []
+    assert explore(runner, maze, (0, 1)) == [(0, 1, "F")]
     assert explore(runner, maze, (0, 2)) == [(0, 1, "F"), (0, 2, "F")]
     assert explore(runner, maze, (1, 2)) == [(0, 1, "F"), (0, 2, "F"), (1, 2, "RF")]

@@ -8,6 +8,7 @@ from turn import Turn
 from wall import Wall
 from maze import *
 
+
 def create_runner(
     x: int = 0, y: int = 0, orientation: Direction = Direction.NORTH
 ) -> dict:
@@ -246,7 +247,7 @@ def go_straight(runner: dict, maze: list[list[list[bool]]]) -> dict:
     dict
         A dictionary object representing the moved runner.
     """
-    if not sense_walls(runner, maze)[1]: # Wall directly ahead is empty
+    if not sense_walls(runner, maze)[1]:  # Wall directly ahead is empty
         return forward(runner)
     else:
         raise ValueError("runner cannot walk through a wall")
@@ -318,7 +319,10 @@ def in_goal(runner: dict, goal_x: int, goal_y: int) -> bool:
 
     return (x == goal_x) and (y == goal_y)
 
-def explore(runner: dict, maze: list[list[list[bool]]], goal: tuple[int, int] | None = None) -> list[tuple[int, int, str]]:
+
+def explore(
+    runner: dict, maze: list[list[list[bool]]], goal: tuple[int, int] | None = None
+) -> list[tuple[int, int, str]]:
     """Advance the runner through the maze until the goal is reached. Return the sequence of positions and actions taken to get there.
 
     Parameters
@@ -345,7 +349,9 @@ def explore(runner: dict, maze: list[list[list[bool]]], goal: tuple[int, int] | 
         if not isinstance(goal, tuple):
             raise TypeError(f"goal must be a tuple, got {type(goal).__name__}")
         if not (isinstance(goal[0], int) and isinstance(goal[1], int)):
-            raise TypeError(f"goal must be be tuple (int, int), got ({type(goal[0]).__name__}, {type(goal[1]).__name__})")
+            raise TypeError(
+                f"goal must be be tuple (int, int), got ({type(goal[0]).__name__}, {type(goal[1]).__name__})"
+            )
 
         goal_x, goal_y = goal
 
