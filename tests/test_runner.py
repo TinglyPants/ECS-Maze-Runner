@@ -125,3 +125,56 @@ def test_forward():
     assert forward(runner_east) == {"x": 1, "y": 0, "orientation": Direction.EAST}
     assert forward(runner_south) == {"x": 0, "y": -1, "orientation": Direction.SOUTH}
     assert forward(runner_west) == {"x": -1, "y": 0, "orientation": Direction.WEST}
+
+def test_backward():
+    """Unit test backward."""
+    runner_north = create_runner(0, 0, Direction.NORTH)
+    runner_east = create_runner(0, 0, Direction.EAST)
+    runner_south = create_runner(0, 0, Direction.SOUTH)
+    runner_west = create_runner(0, 0, Direction.WEST)
+
+    assert backward(runner_north) == {"x": 0, "y": -1, "orientation": Direction.SOUTH}
+    assert backward(runner_east) == {"x": -1, "y": 0, "orientation": Direction.WEST}
+    assert backward(runner_south) == {"x": 0, "y": 1, "orientation": Direction.NORTH}
+    assert backward(runner_west) == {"x": 1, "y": 0, "orientation": Direction.EAST}
+
+
+def test_sense_walls():
+    """Unit test sense_walls."""
+    maze = create_maze(3,3)
+    runner = create_runner(1, 1, Direction.NORTH)
+
+    maze = add_horizontal_wall(maze, 1, 2)
+
+    assert sense_walls(runner, maze) == (False, True, False)
+    runner = turn(runner, Turn.RIGHT)
+    assert sense_walls(runner, maze) == (True, False, False)
+    runner = turn(runner, Turn.RIGHT)
+    assert sense_walls(runner, maze) == (False, False, False)
+    runner = turn(runner, Turn.RIGHT)
+    assert sense_walls(runner, maze) == (False, False, True)
+
+
+def test_go_straight():
+    """Unit test go_straight."""
+    maze = create_maze(3,3)
+    runner = create_runner(1, 1, Direction.NORTH)
+
+    maze = add_horizontal_wall(maze, 1, 2)
+
+    with pytest.raises(ValueError):
+        go_straight(runner, maze)
+
+    runner = turn(runner, Turn.RIGHT)
+    assert go_straight(runner, maze) == {"x": 2, "y": 1, "orientation": Direction.EAST}
+
+
+def test_explore():
+    """Unit test explore."""
+    maze = create_maze(3,3)
+    runner = create_runner(0, 0, Direction.NORTH)
+
+    assert explore(runner, maze, (0,0)) == []
+    assert explore(runner, maze, (0,1)) == [(0,1,"F")]
+    assert explore(runner, maze, (0, 2)) == [(0, 1, "F"), (0, 2, "F")]
+    assert explore(runner, maze, (1, 2)) == [(0, 1, "F"), (0, 2, "F"), (1, 2, "RF")]
