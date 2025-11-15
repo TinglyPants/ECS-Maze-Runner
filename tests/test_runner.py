@@ -169,19 +169,38 @@ def test_go_straight():
     runner = turn(runner, Turn.RIGHT)
     assert go_straight(runner, maze) == {"x": 2, "y": 1, "orientation": Direction.EAST}
 
+
 def test_get_position_or_default():
     """Unit test get_position_or_default."""
     maze = create_maze(3, 3)
 
-    assert get_position_or_default(maze, (0, 0), (Direction.EAST, Direction.NORTH)) == (0, 0)
-    assert get_position_or_default(maze, (1, 1), (Direction.EAST, Direction.NORTH)) == (1, 1)
+    assert get_position_or_default(maze, (0, 0), (Direction.EAST, Direction.NORTH)) == (
+        0,
+        0,
+    )
+    assert get_position_or_default(maze, (1, 1), (Direction.EAST, Direction.NORTH)) == (
+        1,
+        1,
+    )
     with pytest.raises(ValueError):
         get_position_or_default(maze, (4, 4), (Direction.EAST, Direction.NORTH))
 
-    assert get_position_or_default(maze, None, (Direction.EAST, Direction.NORTH)) == (2, 2)
-    assert get_position_or_default(maze, None, (Direction.EAST, Direction.SOUTH)) == (2, 0)
-    assert get_position_or_default(maze, None, (Direction.WEST, Direction.NORTH)) == (0, 2)
-    assert get_position_or_default(maze, None, (Direction.WEST, Direction.SOUTH)) == (0, 0)
+    assert get_position_or_default(maze, None, (Direction.EAST, Direction.NORTH)) == (
+        2,
+        2,
+    )
+    assert get_position_or_default(maze, None, (Direction.EAST, Direction.SOUTH)) == (
+        2,
+        0,
+    )
+    assert get_position_or_default(maze, None, (Direction.WEST, Direction.NORTH)) == (
+        0,
+        2,
+    )
+    assert get_position_or_default(maze, None, (Direction.WEST, Direction.SOUTH)) == (
+        0,
+        0,
+    )
 
     with pytest.raises(ValueError):
         get_position_or_default(maze, None, (Direction.NORTH, Direction.NORTH))
@@ -192,6 +211,7 @@ def test_get_position_or_default():
     with pytest.raises(ValueError):
         get_position_or_default(maze, None, (Direction.EAST, Direction.WEST))
 
+
 def test_explore():
     """Unit test explore."""
     maze = create_maze(3, 3)
@@ -200,4 +220,9 @@ def test_explore():
     assert explore(runner, maze, (0, 0)) == [(0, 0, "F")]
     assert explore(runner, maze, (0, 1)) == [(0, 0, "F"), (0, 1, "F")]
     assert explore(runner, maze, (0, 2)) == [(0, 0, "F"), (0, 1, "F"), (0, 2, "F")]
-    assert explore(runner, maze, (1, 2)) == [(0, 0, "F"), (0, 1, "F"), (0, 2, "F"), (1, 2, "RF")]
+    assert explore(runner, maze, (1, 2)) == [
+        (0, 0, "F"),
+        (0, 1, "F"),
+        (0, 2, "F"),
+        (1, 2, "RF"),
+    ]

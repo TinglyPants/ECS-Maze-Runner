@@ -6,6 +6,7 @@
 from runner import *
 from maze import *
 
+
 def link_list(list_to_link: list) -> list[list]:
     """Return a linked list from a supplied list.
 
@@ -22,6 +23,7 @@ def link_list(list_to_link: list) -> list[list]:
     linked_list = [[item, index + 1] for index, item in enumerate(list_to_link)]
     linked_list[-1][1] = -1  # Set last link to -1 to indicate end of linked list
     return linked_list
+
 
 def _optimise_path(linked_path: list[list]) -> list[tuple[int, int, str]]:
     """Removes duplicate positions from the linked path and returns a normal path.
@@ -66,7 +68,10 @@ def _optimise_path(linked_path: list[list]) -> list[tuple[int, int, str]]:
 
     return optimised_path
 
-def _construct_sequences(optimised_path: list[tuple[int, int, str]], starting_direction: Direction) -> list[tuple[int, int, str]]:
+
+def _construct_sequences(
+    optimised_path: list[tuple[int, int, str]], starting_direction: Direction
+) -> list[tuple[int, int, str]]:
     """Adds sequences to the optimised path, as well as removing the last (goal) position.
 
     This is an internal helper method - not intended to be called externally.
@@ -114,7 +119,12 @@ def _construct_sequences(optimised_path: list[tuple[int, int, str]], starting_di
 
     return optimised_path[:-1]
 
-def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None = None, goal: tuple[int, int] | None = None) -> list[tuple[int, int, str]]:
+
+def shortest_path(
+    maze: list[list[list[bool]]],
+    starting: tuple[int, int] | None = None,
+    goal: tuple[int, int] | None = None,
+) -> list[tuple[int, int, str]]:
     """Return the shortest sequence from the starting position to the goal position found by a maze runner.
 
     The path found may not necessarily be the shortest possible, as that is determined by the exploration algorithm.
@@ -133,12 +143,16 @@ def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None
     list[tuple[int, int, str]]
         The shortest sequence from the starting position to the goal position found by a maze runner.
     """
-    starting_x, starting_y = get_position_or_default(maze, starting, (Direction.WEST, Direction.SOUTH))
+    starting_x, starting_y = get_position_or_default(
+        maze, starting, (Direction.WEST, Direction.SOUTH)
+    )
     runner = create_runner(starting_x, starting_y)
     path = explore(runner, maze, goal)
 
     linked_path = link_list(path)
     optimised_path = _optimise_path(linked_path)
-    optimised_path_with_sequences = _construct_sequences(optimised_path, Direction.NORTH)
+    optimised_path_with_sequences = _construct_sequences(
+        optimised_path, Direction.NORTH
+    )
 
     return optimised_path_with_sequences

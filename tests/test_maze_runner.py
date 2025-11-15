@@ -6,6 +6,7 @@
 from maze import *
 from maze_runner import *
 
+
 def test_shortest_path():
     """Unit test shortest path."""
     maze = create_maze(11, 5)
