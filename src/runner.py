@@ -10,7 +10,7 @@ from maze import *
 
 
 def create_runner(
-    x: int = 0, y: int = 0, orientation: Direction = Direction.NORTH
+    x: int = 0, y: int = 0, orientation: Direction | str = Direction.NORTH
 ) -> dict:
     """Return a dictionary object representing a maze runner.
 
@@ -32,6 +32,13 @@ def create_runner(
         raise TypeError(f"x must be int, got {type(x).__name__}")
     if not isinstance(y, int):
         raise TypeError(f"y must be int, got {type(y).__name__}")
+    if isinstance(orientation, str):
+        try:
+            orientation = Direction(orientation)
+        except ValueError:
+            raise TypeError(
+                f'orientation must be Direction enum member, got "{orientation}" instead'
+            )
     if not isinstance(orientation, Direction):
         raise TypeError(
             f"orientation must be Direction enum member, got {type(orientation).__name__}"
@@ -111,7 +118,7 @@ def get_orientation(runner: dict) -> Direction:
     return runner["orientation"]
 
 
-def turn(runner: dict, direction: Turn) -> dict:
+def turn(runner: dict, direction: Turn | str) -> dict:
     """Turn the runner a given direction, then return the turned runner.
 
     Parameters
@@ -127,6 +134,13 @@ def turn(runner: dict, direction: Turn) -> dict:
         A dictionary object representing the turned runner.
     """
     orientation = get_orientation(runner)
+    if isinstance(direction, str):
+        try:
+            direction = Turn(direction)
+        except ValueError:
+            raise TypeError(
+                f'direction must be Turn enum member, got "{direction}" instead'
+            )
     if not isinstance(direction, Turn):
         raise TypeError(
             f"direction must be Turn enum member, got {type(direction).__name__}"

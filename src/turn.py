@@ -17,3 +17,10 @@ class Turn(Enum):
 
     LEFT = "Left"
     RIGHT = "Right"
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Turn):
+            return self.value == other.value
+        if isinstance(other, str):
+            return self.value == other
+        raise NotImplementedError

@@ -70,3 +70,10 @@ class Direction(Enum):
                 return 2
             case Direction.WEST:
                 return 3
+
+    def __eq__(self, other: object) -> bool:
+        if isinstance(other, Direction):
+            return self.value == other.value
+        if isinstance(other, str):
+            return self.value == other
+        raise NotImplementedError
