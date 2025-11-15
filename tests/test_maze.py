@@ -1,7 +1,7 @@
 # Copyright (c) 2025 Matty Chalk
 # Licensed under the MIT License (see LICENSE file for details)
 
-"""Testing module for runner.py."""
+"""Testing module for maze.py."""
 
 import pytest
 from maze import *
