@@ -320,6 +320,67 @@ def in_goal(runner: dict, goal_x: int, goal_y: int) -> bool:
     return (x == goal_x) and (y == goal_y)
 
 
+def get_position_or_default(maze: list[list[list[bool]]], position: tuple[int,int] | None, default: tuple[Direction, Direction]) -> tuple[int, int]:
+    """Get the default position within the maze or the given position.
+
+    The default position is specified by the tuple, and is one of the corners of the maze.
+    The first item is either east or west, to define the x position.
+    The second item is either north or south, to define the y position.
+
+    Parameters
+    ----------
+    maze : list[list[list[bool]]]
+        The maze.
+    position : tuple[int, int], optional
+        The position to use. If None, the default position will be used.
+    default : tuple[Direction, Direction], optional
+        The default position to use.
+
+    Returns
+    -------
+    tuple[int, int]
+        The default position within the maze or the given position.
+    """
+    position_x, position_y = None, None
+    width, height = get_dimensions(maze)
+    if position is None:
+        if not isinstance(default, tuple):
+            raise TypeError(
+                f"default must be tuple, got {type(default).__name__}"
+            )
+        if not (isinstance(default[0], Direction) and isinstance(default[1], Direction)):
+            raise TypeError(
+                f"default must be be tuple (Direction, Direction), got ({type(default[0]).__name__}, {type(default[1]).__name__})"
+            )
+
+        if default[0] == Direction.WEST:
+            position_x = 0
+        elif default[0] == Direction.EAST:
+            position_x = width - 1
+        else:
+            raise ValueError("default[0] must be EAST or WEST")
+
+        if default[1] == Direction.SOUTH:
+            position_y = 0
+        elif default[1] == Direction.NORTH:
+            position_y = height - 1
+        else:
+            raise ValueError("default[0] must be EAST or WEST")
+    else:
+        if not isinstance(position, tuple):
+            raise TypeError(f"position must be a tuple, got {type(position).__name__}")
+        if not (isinstance(position[0], int) and isinstance(position[1], int)):
+            raise TypeError(
+                f"position must be be tuple (int, int), got ({type(position[0]).__name__}, {type(position[1]).__name__})"
+            )
+
+        position_x, position_y = position
+
+        if position_x >= width or position_y >= height or position_x < 0 or position_y < 0:
+            raise ValueError(f"position must be inside the maze, got ({position_x}, {position_y})")
+
+    return position_x, position_y
+
 def explore(
     runner: dict, maze: list[list[list[bool]]], goal: tuple[int, int] | None = None
 ) -> list[tuple[int, int, str]]:
@@ -340,26 +401,10 @@ def explore(
         The sequence of positions and actions taken to get to the goal.
     """
     # Get goal position
-    goal_x, goal_y = None, None
-    width, height = get_dimensions(maze)
-    if goal is None:
-        goal_x = width - 1
-        goal_y = height - 1
-    else:
-        if not isinstance(goal, tuple):
-            raise TypeError(f"goal must be a tuple, got {type(goal).__name__}")
-        if not (isinstance(goal[0], int) and isinstance(goal[1], int)):
-            raise TypeError(
-                f"goal must be be tuple (int, int), got ({type(goal[0]).__name__}, {type(goal[1]).__name__})"
-            )
-
-        goal_x, goal_y = goal
-
-        if goal_x >= width or goal_y >= height or goal_x < 0 or goal_y < 0:
-            raise ValueError(f"goal must be inside the maze, got ({goal_x}, {goal_y})")
+    goal_x, goal_y = get_position_or_default(maze, goal, (Direction.EAST, Direction.NORTH))
 
     # Move runner until runner is at the goal
-    runner_action_sequence = []
+    runner_action_sequence = [(runner['x'], runner['x'], "F")]
     while not in_goal(runner, goal_x, goal_y):
         runner, action = move(runner, maze)
         runner_action_sequence.append((get_x(runner), get_y(runner), action))
