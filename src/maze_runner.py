@@ -6,37 +6,41 @@
 from runner import *
 from maze import *
 
-def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None = None, goal: tuple[int, int] | None = None) -> list[tuple[int, int, str]]:
-    """Return the shortest sequence from the starting position to the goal position found by a maze runner.
-
-    The path found may not necessarily be the shortest possible, as that is determined by the exploration algorithm.
+def link_list(list_to_link: list) -> list[list]:
+    """Return a linked list from a supplied list.
 
     Parameters
     ----------
-    maze: list[list[list[bool]]]
-        The maze to explore.
-    starting: tuple[int, int], optional
-        The starting position of the runner. If None, the starting position will be the bottom left of the maze. Default is None.
-    goal : tuple[int, int], optional
-        The position of the goal. If None, the goal will be the top right of the maze. Default is None.
+    list_to_link: list[list]
+        The list to link.
+
+    Returns
+    -------
+    list[list]
+        The newly linked list.
+    """
+    linked_list = [[item, index + 1] for index, item in enumerate(list_to_link)]
+    linked_list[-1][1] = -1  # Set last link to -1 to indicate end of linked list
+    return linked_list
+
+def _optimise_path(linked_path: list[list]) -> list[tuple[int, int, str]]:
+    """Removes duplicate positions from the linked path and returns a normal path.
+
+    This is an internal helper method - not intended to be called externally.
+
+    Parameters
+    ----------
+    linked_path: list[list]
+        The linked path to remove duplicate positions from.
 
     Returns
     -------
     list[tuple[int, int, str]]
-        The shortest sequence from the starting position to the goal position found by a maze runner.
+        The new, non-linked path. The string part of the tuple will be empty, to be filled in later.
     """
-    starting_x, starting_y = get_position_or_default(maze, starting, (Direction.WEST, Direction.SOUTH))
-    runner = create_runner(starting_x, starting_y)
-    path_explored = explore(runner, maze, goal)
-
-    # Convert explored path to linked list of positions.
-    linked_path_explored = [[(pos_x, pos_y), index + 1] for index, (pos_x, pos_y, sequence) in enumerate(path_explored)]
-    linked_path_explored[-1][1] = -1  # Set last pointer to -1 to indicate end of linked list
-
-    # Iterate through linked list of positions, recording positions seen and where in the list they were seen.
-    # When a duplicate position is found, restructure the linked list to remove the unnecessary steps between. Then, update the stored positions
+    # Remove unnecessary positions from linked path by reassigning pointers
     seen_positions: dict[tuple[int, int], int] = {}
-    for index, ((pos_x, pos_y), next_index) in enumerate(linked_path_explored):
+    for index, ((pos_x, pos_y, _), next_index) in enumerate(linked_path):
         # End of journey, skip iteration
         if next_index == -1:
             continue
@@ -44,24 +48,42 @@ def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None
         if (pos_x, pos_y) in seen_positions:
             index_of_previously_seen = seen_positions[(pos_x, pos_y)]
             # Skip all the unnecessary positions in between
-            linked_path_explored[index_of_previously_seen][1] = next_index
+            linked_path[index_of_previously_seen][1] = next_index
             # Update seen_positions
             seen_positions[(pos_x, pos_y)] = index
         else:
             seen_positions[(pos_x, pos_y)] = index
 
     optimised_path: list[tuple[int, int, str]] = []
-    # Iterate through linked list of positions, using the links to get the optimised path
+    # Iterate through linked path, using the links to get the optimised path
     next_index = 0
     while next_index != -1:
-        pos_x = linked_path_explored[next_index][0][0]
-        pos_y = linked_path_explored[next_index][0][1]
+        pos_x = linked_path[next_index][0][0]
+        pos_y = linked_path[next_index][0][1]
         optimised_path.append((pos_x, pos_y, ""))
 
-        next_index = linked_path_explored[next_index][1]
+        next_index = linked_path[next_index][1]
 
-    # Iterate through optimised path (except last), adding the correct actions required to reach each next position
-    prev_direction = Direction.NORTH
+    return optimised_path
+
+def _construct_sequences(optimised_path: list[tuple[int, int, str]], starting_direction: Direction) -> list[tuple[int, int, str]]:
+    """Adds sequences to the optimised path, as well as removing the last (goal) position.
+
+    This is an internal helper method - not intended to be called externally.
+
+    Parameters
+    ----------
+    optimised_path: list[tuple[int, int, str]]
+        The optimised path to add sequences to.
+    starting_direction: Direction
+        The `Direction` the runner started out facing.
+
+    Returns
+    -------
+    list[tuple[int, int, str]]
+        The optimised path with sequences added. The last item is also removed.
+    """
+    prev_direction = starting_direction
     for index, (pos_x, pos_y, sequence) in enumerate(optimised_path[:-1]):
         next_index = index + 1
         next_pos_x = optimised_path[next_index][0]
@@ -92,13 +114,31 @@ def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None
 
     return optimised_path[:-1]
 
-maze = create_maze(3, 3)
-maze = add_vertical_wall(maze, 1, 2)
-maze = add_vertical_wall(maze, 2, 2)
-maze = add_horizontal_wall(maze, 1, 1)
+def shortest_path(maze: list[list[list[bool]]], starting: tuple[int, int] | None = None, goal: tuple[int, int] | None = None) -> list[tuple[int, int, str]]:
+    """Return the shortest sequence from the starting position to the goal position found by a maze runner.
 
-runner = create_runner(0, 0, Direction.NORTH)
+    The path found may not necessarily be the shortest possible, as that is determined by the exploration algorithm.
 
-print(explore(runner, maze, (2,0)))
+    Parameters
+    ----------
+    maze: list[list[list[bool]]]
+        The maze to explore.
+    starting: tuple[int, int], optional
+        The starting position of the runner. If None, the starting position will be the bottom left of the maze. Default is None.
+    goal : tuple[int, int], optional
+        The position of the goal. If None, the goal will be the top right of the maze. Default is None.
 
-print(shortest_path(maze, (0,0), (2,0)))
+    Returns
+    -------
+    list[tuple[int, int, str]]
+        The shortest sequence from the starting position to the goal position found by a maze runner.
+    """
+    starting_x, starting_y = get_position_or_default(maze, starting, (Direction.WEST, Direction.SOUTH))
+    runner = create_runner(starting_x, starting_y)
+    path = explore(runner, maze, goal)
+
+    linked_path = link_list(path)
+    optimised_path = _optimise_path(linked_path)
+    optimised_path_with_sequences = _construct_sequences(optimised_path, Direction.NORTH)
+
+    return optimised_path_with_sequences
