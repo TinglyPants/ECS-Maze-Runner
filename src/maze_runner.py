@@ -120,7 +120,9 @@ def _construct_sequences(
     return optimised_path[:-1]
 
 
-def write_exploration_path_to_file(path: list[tuple[int, int, str]], exploration_file: str) -> None:
+def write_exploration_path_to_file(
+    path: list[tuple[int, int, str]], exploration_file: str
+) -> None:
     """Write the exploration path to a file."""
     with open(exploration_file, "w") as file:
         file.write("Step,x-coordinate,y-coordinate,Actions\n")
@@ -128,7 +130,12 @@ def write_exploration_path_to_file(path: list[tuple[int, int, str]], exploration
             file.write(f"{index+1},{pos_x},{pos_y},{path[index+1][2]}\n")
 
 
-def write_statistics_to_file(maze_file: str | None, exploration_path: list[tuple[int, int, str]], optimised_path: list[tuple[int, int, str]], statistics_file: str) -> None:
+def write_statistics_to_file(
+    maze_file: str | None,
+    exploration_path: list[tuple[int, int, str]],
+    optimised_path: list[tuple[int, int, str]],
+    statistics_file: str,
+) -> None:
     """Write the statistics to a file"""
     with open(statistics_file, "w") as file:
         file.write(f"{maze_file}\n")
@@ -140,12 +147,13 @@ def write_statistics_to_file(maze_file: str | None, exploration_path: list[tuple
         file.write(f"{optimised_path}\n")
         file.write(f"{path_length}")
 
+
 def shortest_path(
     maze: list[list[list[bool]]],
     starting: tuple[int, int] | None = None,
     goal: tuple[int, int] | None = None,
     scribe: bool = False,
-    maze_file_name: str | None = None
+    maze_file_name: str | None = None,
 ) -> list[tuple[int, int, str]]:
     """Return the shortest sequence from the starting position to the goal position found by a maze runner.
 
@@ -186,7 +194,9 @@ def shortest_path(
 
     if scribe:
         write_exploration_path_to_file(path, "exploration.csv")
-        write_statistics_to_file(maze_file_name, path, optimised_path_with_sequences, "statistics.txt")
+        write_statistics_to_file(
+            maze_file_name, path, optimised_path_with_sequences, "statistics.txt"
+        )
 
     return optimised_path_with_sequences
 
@@ -366,7 +376,3 @@ def maze_reader(maze_file: str) -> list[list[list[bool]]]:
         raise
     except:
         raise IOError("there was an issue reading from the maze file.")
-
-
-maze = maze_reader("maze3.mz")
-shortest_path(maze, (0,0), (1,1), True, "maze3.mz")
