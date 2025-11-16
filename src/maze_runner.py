@@ -26,7 +26,7 @@ def link_list(list_to_link: list) -> list[list]:
 
 
 def _optimise_path(linked_path: list[list]) -> list[tuple[int, int, str]]:
-    """Removes duplicate positions from the linked path and returns a normal path.
+    """Remove duplicate positions from the linked path and return a normal path.
 
     This is an internal helper method - not intended to be called externally.
 
@@ -72,7 +72,7 @@ def _optimise_path(linked_path: list[list]) -> list[tuple[int, int, str]]:
 def _construct_sequences(
     optimised_path: list[tuple[int, int, str]], starting_direction: Direction
 ) -> list[tuple[int, int, str]]:
-    """Adds sequences to the optimised path, as well as removing the last (goal) position.
+    """Add sequences to the optimised path, as well as removing the last (goal) position.
 
     This is an internal helper method - not intended to be called externally.
 
@@ -156,3 +156,167 @@ def shortest_path(
     )
 
     return optimised_path_with_sequences
+
+
+def is_valid_maze_file(maze_file: str) -> bool:
+    """Return `True` if `maze_file` is a valid maze file.
+
+    Parameters
+    ----------
+    maze_file: str
+        The path to the maze file.
+
+    Returns
+    -------
+    bool
+    `True` if `maze_file` is a valid maze file.
+    """
+    with open(maze_file, "r") as file:
+        maze_file_lines = [line.strip() for line in file.readlines()]
+
+        # Ensure all lines are same length
+        length = len(maze_file_lines[0])
+        for line in maze_file_lines:
+            if len(line) != length:
+                return False
+
+        # Ensure line length and line count are odd
+        if len(maze_file_lines) % 2 == 0:
+            return False
+        if len(maze_file_lines[0]) % 2 == 0:
+            return False
+
+        # Ensure external walls present
+        for char in maze_file_lines[0] + maze_file_lines[-1]:
+            if char != "#":
+                return False
+        for line in maze_file_lines[1:-1]:
+            if line[0] != "#" or line[-1] != "#":
+                return False
+
+        # Ensure wall intersections are all hashes
+        for line in maze_file_lines[0::2]:
+            for char in line[0::2]:
+                if char != "#":
+                    return False
+
+        # Ensure cell positions are all dots
+        for line in maze_file_lines[1::2]:
+            for char in line[1::2]:
+                if char != ".":
+                    return False
+
+    return True
+
+
+def get_maze_file_dimensions(maze_file: str) -> tuple[int, int]:
+    """Return the dimensions of the maze file as (width, height).
+
+    Parameters
+    ----------
+    maze_file: str
+        The path to the maze file.
+
+    Returns
+    -------
+    tuple[int, int]
+        The dimensions of the maze file as (width, height).
+    """
+    with open(maze_file, "r") as file:
+        maze_file_lines = [line.strip() for line in file.readlines()]
+
+        maze_width: int = (len(maze_file_lines[0]) - 1) // 2
+        maze_height: int = (len(maze_file_lines) - 1) // 2
+
+        return maze_width, maze_height
+
+def get_maze_file_cells(maze_file: str) -> list[list[tuple[str, str, str, str]]]:
+    """Return the cells of the maze file, where each cell is a tuple of 4 characters.
+
+    Each cell tuple represents the 4 neighbouring characters to that cell.
+    The tuple should be indexed by casting a `Direction` enum to an integer.
+
+    Parameters
+    ----------
+    maze_file: str
+        The path to the maze file.
+
+    Returns
+    -------
+    list[list[tuple[str, str, str, str]]]
+        The cells of the maze file.
+    """
+    cells: list[list[tuple[str, str, str, str]]] = None
+    with open(maze_file, "r") as file:
+        maze_file_lines = [line.strip() for line in file.readlines()]
+
+        maze_width, maze_height = get_maze_file_dimensions(maze_file)
+
+        # cells indexed as cells[x][y]
+        cells = [[("", "", "", "") for _ in range(maze_height)] for _ in range(maze_width)]
+
+        for line_index, line in enumerate(maze_file_lines):
+            for char_index, char in enumerate(line):
+                if line_index % 2 == 1 and char_index % 2 == 1:
+                    cell_x: int = (char_index - 1) // 2
+                    cell_y: int = (len(maze_file_lines) - line_index - 2) // 2
+
+                    north_neighbour = maze_file_lines[line_index - 1][char_index]
+                    east_neighbour = maze_file_lines[line_index][char_index + 1]
+                    south_neighbour = maze_file_lines[line_index + 1][char_index]
+                    west_neighbour = maze_file_lines[line_index][char_index - 1]
+
+                    cells[cell_x][cell_y] = (north_neighbour, east_neighbour, south_neighbour, west_neighbour)
+
+    return cells
+
+
+def maze_file_cell_to_maze_cell(maze_file_cell: tuple[str, str, str, str]) -> list[bool]:
+    """Read a maze file cell and convert it to a regular maze cell.
+
+    Parameters
+    ----------
+    maze_file_cell: tuple[str, str, str, str]
+        The maze file cell.
+
+    Returns
+    -------
+    list[bool]
+        The maze file cell converted to a regular maze cell.
+    """
+    maze_cell = [False, False, False, False]
+    maze_cell[int(Direction.NORTH)] = (maze_file_cell[int(Direction.NORTH)] == "#")
+    maze_cell[int(Direction.EAST)] = (maze_file_cell[int(Direction.EAST)] == "#")
+    maze_cell[int(Direction.SOUTH)] = (maze_file_cell[int(Direction.SOUTH)] == "#")
+    maze_cell[int(Direction.WEST)] = (maze_file_cell[int(Direction.WEST)] == "#")
+
+    return maze_cell
+
+def maze_reader(maze_file: str) -> list[list[list[bool]]]:
+    """Read a maze file to build a maze, then return that maze.
+
+    Parameters
+    ----------
+    maze_file: str
+        The path to the maze file.
+
+    Returns
+    -------
+    list[list[list[bool]]]
+        The maze created.
+    """
+    try:
+        if not is_valid_maze_file(maze_file):
+            raise ValueError("maze file must contain a valid maze.")
+
+        maze_file_cells = get_maze_file_cells(maze_file)
+        maze_width, maze_height = get_maze_file_dimensions(maze_file)
+        maze = create_maze(maze_width, maze_height)
+
+        for i in range(maze_width):
+            for j in range(maze_height):
+                maze[i][j] = maze_file_cell_to_maze_cell(maze_file_cells[i][j])
+
+        return maze
+    except:
+        raise IOError("there was an issue reading from the maze file.")
