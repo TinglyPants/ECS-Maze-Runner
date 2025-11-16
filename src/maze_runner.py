@@ -318,5 +318,7 @@ def maze_reader(maze_file: str) -> list[list[list[bool]]]:
                 maze[i][j] = maze_file_cell_to_maze_cell(maze_file_cells[i][j])
 
         return maze
+    except ValueError:
+        raise
     except:
         raise IOError("there was an issue reading from the maze file.")
