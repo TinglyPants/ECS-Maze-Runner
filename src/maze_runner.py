@@ -230,6 +230,7 @@ def get_maze_file_dimensions(maze_file: str) -> tuple[int, int]:
 
         return maze_width, maze_height
 
+
 def get_maze_file_cells(maze_file: str) -> list[list[tuple[str, str, str, str]]]:
     """Return the cells of the maze file, where each cell is a tuple of 4 characters.
 
@@ -253,7 +254,9 @@ def get_maze_file_cells(maze_file: str) -> list[list[tuple[str, str, str, str]]]
         maze_width, maze_height = get_maze_file_dimensions(maze_file)
 
         # cells indexed as cells[x][y]
-        cells = [[("", "", "", "") for _ in range(maze_height)] for _ in range(maze_width)]
+        cells = [
+            [("", "", "", "") for _ in range(maze_height)] for _ in range(maze_width)
+        ]
 
         for line_index, line in enumerate(maze_file_lines):
             for char_index, char in enumerate(line):
@@ -266,12 +269,19 @@ def get_maze_file_cells(maze_file: str) -> list[list[tuple[str, str, str, str]]]
                     south_neighbour = maze_file_lines[line_index + 1][char_index]
                     west_neighbour = maze_file_lines[line_index][char_index - 1]
 
-                    cells[cell_x][cell_y] = (north_neighbour, east_neighbour, south_neighbour, west_neighbour)
+                    cells[cell_x][cell_y] = (
+                        north_neighbour,
+                        east_neighbour,
+                        south_neighbour,
+                        west_neighbour,
+                    )
 
     return cells
 
 
-def maze_file_cell_to_maze_cell(maze_file_cell: tuple[str, str, str, str]) -> list[bool]:
+def maze_file_cell_to_maze_cell(
+    maze_file_cell: tuple[str, str, str, str],
+) -> list[bool]:
     """Read a maze file cell and convert it to a regular maze cell.
 
     Parameters
@@ -285,12 +295,13 @@ def maze_file_cell_to_maze_cell(maze_file_cell: tuple[str, str, str, str]) -> li
         The maze file cell converted to a regular maze cell.
     """
     maze_cell = [False, False, False, False]
-    maze_cell[int(Direction.NORTH)] = (maze_file_cell[int(Direction.NORTH)] == "#")
-    maze_cell[int(Direction.EAST)] = (maze_file_cell[int(Direction.EAST)] == "#")
-    maze_cell[int(Direction.SOUTH)] = (maze_file_cell[int(Direction.SOUTH)] == "#")
-    maze_cell[int(Direction.WEST)] = (maze_file_cell[int(Direction.WEST)] == "#")
+    maze_cell[int(Direction.NORTH)] = maze_file_cell[int(Direction.NORTH)] == "#"
+    maze_cell[int(Direction.EAST)] = maze_file_cell[int(Direction.EAST)] == "#"
+    maze_cell[int(Direction.SOUTH)] = maze_file_cell[int(Direction.SOUTH)] == "#"
+    maze_cell[int(Direction.WEST)] = maze_file_cell[int(Direction.WEST)] == "#"
 
     return maze_cell
+
 
 def maze_reader(maze_file: str) -> list[list[list[bool]]]:
     """Read a maze file to build a maze, then return that maze.
